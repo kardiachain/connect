@@ -14,6 +14,7 @@ type Params = {
     version?: Array<number>;
     btcOnly?: boolean;
     baseUrl?: string;
+    intermediary?: Boolean;
 }
 
 export default class FirmwareUpdate extends AbstractMethod {
@@ -30,12 +31,12 @@ export default class FirmwareUpdate extends AbstractMethod {
         this.skipFirmwareCheck = true;
 
         const payload: Params = message.payload;
-
         validateParams(payload, [
             { name: 'version', type: 'array' },
             { name: 'btcOnly', type: 'boolean' },
             { name: 'baseUrl', type: 'string' },
             { name: 'binary', type: 'buffer' },
+            { name: 'intermediary', type: 'boolean' },
         ]);
 
         this.params = {
@@ -45,6 +46,7 @@ export default class FirmwareUpdate extends AbstractMethod {
             baseUrl: payload.baseUrl || 'https://data.trezor.io',
             // or binary
             binary: payload.binary,
+            intermediary: payload.intermediary,
         };
     }
 
@@ -85,6 +87,7 @@ export default class FirmwareUpdate extends AbstractMethod {
                     version: this.params.version,
                     btcOnly: this.params.btcOnly,
                     baseUrl: this.params.baseUrl,
+                    intermediary: this.params.intermediary,
                 });
                 binary = firmware.binary;
             }
