@@ -128,6 +128,7 @@ export default class SignTransaction extends AbstractMethod {
         const { device, params } = this;
 
         let refTxs: RefTransaction[] = [];
+        const useLegacySignProcess = device.unavailableCapabilities['replaceTransaction'];
         if (!params.refTxs) {
             // initialize backend
             const refTxsIds = getReferencedTransactions(params.inputs);
@@ -138,9 +139,8 @@ export default class SignTransaction extends AbstractMethod {
                 const rawTxs = await blockchain.getTransactions(refTxsIds);
                 refTxs = transformReferencedTransactions(rawTxs, params.coinInfo);
 
-                // TODO: only if supported by FW
                 const origTxsIds = getOrigTransactions(params.inputs, params.outputs);
-                if (origTxsIds.length > 0) {
+                if (!useLegacySignProcess && origTxsIds.length > 0) {
                     const rawOrigTxs = await blockchain.getTransactions(origTxsIds);
                     let addresses = params.addresses;
                     // sender account addresses not provided
@@ -163,7 +163,7 @@ export default class SignTransaction extends AbstractMethod {
             refTxs = params.refTxs;
         }
 
-        const signTxMethod = !device.unavailableCapabilities['replaceTransaction'] ? signTx : signTxLegacy;
+        const signTxMethod = !useLegacySignProcess ? signTx : signTxLegacy;
         const response = await signTxMethod(
             device.getCommands().typedCall.bind(device.getCommands()),
             params.inputs,
