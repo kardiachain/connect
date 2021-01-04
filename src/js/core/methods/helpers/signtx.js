@@ -36,18 +36,22 @@ const requestPrevTxInfo = ({
         throw ERRORS.TypedError('Runtime', `requestPrevTxInfo: Requested unknown tx: ${tx_hash}`);
     }
     if (request_type === 'TXINPUT') {
+        // bin_outputs not present in tx = invalid RefTransaction object
         if (!tx.bin_outputs) throw ERRORS.TypedError('Runtime', `requestPrevTxInfo: Requested unknown TXINPUT: ${tx_hash}`);
         return typedCall('TxAckPrevInput', 'TxRequest', { tx: { input: tx.inputs[details.request_index] } });
     }
     if (request_type === 'TXOUTPUT') {
+        // bin_outputs not present in tx = invalid RefTransaction object
         if (!tx.bin_outputs) throw ERRORS.TypedError('Runtime', `requestPrevTxInfo: Requested unknown TXOUTPUT: ${tx_hash}`);
         return typedCall('TxAckPrevOutput', 'TxRequest', { tx: { output: tx.bin_outputs[details.request_index] } });
     }
     if (request_type === 'TXORIGINPUT') {
+        // outputs not present in tx = invalid RefTransaction object
         if (!tx.outputs) throw ERRORS.TypedError('Runtime', `requestPrevTxInfo: Requested unknown TXORIGINPUT: ${tx_hash}`);
         return typedCall('TxAckInput', 'TxRequest', { tx: { input: tx.inputs[details.request_index] } });
     }
-    if (request_type === 'TXORIGOUTPUT' && tx.outputs) {
+    if (request_type === 'TXORIGOUTPUT') {
+        // outputs not present in tx = invalid RefTransaction object
         if (!tx.outputs) throw ERRORS.TypedError('Runtime', `requestPrevTxInfo: Requested unknown TXORIGOUTPUT: ${tx_hash}`);
         return typedCall('TxAckOutput', 'TxRequest', { tx: { output: tx.outputs[details.request_index] } });
     }
